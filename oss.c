@@ -10,7 +10,7 @@ void help(){
         printf("Please use this template for running the program: oss [-h] [-n proc] [-s simul] [-t iter]")
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 
     int children = 0, iterations = 0, time_limit = 0, opt;
 
