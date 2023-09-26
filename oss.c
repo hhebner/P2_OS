@@ -5,7 +5,38 @@
 #include <sys/shm.h>
 #include <sys/wait.h>
 
+
+void help(){
+        printf("Please use this template for running the program: oss [-h] [-n proc] [-s simul] [-t iter]")
+}
+
 int main() {
+
+    int children = 0, iterations = 0, time_limit = 0, opt;
+
+    while ((opt = getopt(argc, argv, "hn:s:t:")) != -1){
+        switch(opt) {
+            case 'h':
+               help();
+               exit(0);
+            case 'n':
+                children = atoi(optarg);
+                break;
+            case 's':
+                simulations = atoi(optarg);
+                break;
+            case 't':
+                time_limit = atoi(optarg);
+                break;
+            default:
+                help();
+                exit(1);
+        }
+    }
+
+
+
+
     const int seconds_key = 5396211;
     const int nano_key = 2798414;
 
