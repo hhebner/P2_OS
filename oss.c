@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/wait.h>
 
 int main() {
     const int seconds_key = 5396211;
@@ -25,10 +26,24 @@ int main() {
         printf("Failed to attach to nano shared memory");
     }
 
+    pid_t fork_pid = fork();
+    if (fork_pid == 0){
+        *seconds_ptr = 5;
+        *nano_ptr = 100;
+    }
+    else if (fork_pid > 0){
+        wait(0);
+        printf("Seconds: %d and nanoseconds: %d", *seconds_ptr, *nano_ptr);
+    }
+    else{
+        perror("Fork failure");
+    }
+
     shmdt(seconds_ptr);
     shmdt(nano_ptr);
     shmctl(shmid_seconds, IPC_RMID, NULL);
     shmctl(smid_nano, IPC_RMID, NULL);
 
+    return 0;
 
 }
