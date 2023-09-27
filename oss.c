@@ -44,23 +44,23 @@ int main(int argc, char *argv[]) {
     if (shmid_seconds <= 0){
         printf("Shared memory failed for seconds");
     }
-    int smid_nano = shmget(nano_key, sizeof(int), IPC_CREAT|0666);
-    if (smid_nano <= 0){
-        printf("Shared memoryt failed for nano");
+    int shmid_nano = shmget(nano_key, sizeof(int), IPC_CREAT|0666);
+    if (shmid_nano <= 0){
+        printf("Shared memory failed for nano");
     }
     int *seconds_ptr = shmat(shmid_seconds, 0, 0);
     if (seconds_ptr <= 0){
         printf("Failed to attach to seconds shared memory");
     }
-    int *nano_ptr = shmat(smid_nano, 0, 0);
+    int *nano_ptr = shmat(shmid_nano, 0, 0);
     if (nano_ptr <= 0){
         printf("Failed to attach to nano shared memory");
     }
 
     pid_t fork_pid = fork();
     if (fork_pid == 0){
-        *seconds_ptr = 5;
-        *nano_ptr = 100;
+        (*seconds_ptr) += 1;
+        (*nano_ptr) += 10000000;
     }
     else if (fork_pid > 0){
         wait(0);
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
     shmdt(seconds_ptr);
     shmdt(nano_ptr);
     shmctl(shmid_seconds, IPC_RMID, NULL);
-    shmctl(smid_nano, IPC_RMID, NULL);
+    shmctl(shmid_nano, IPC_RMID, NULL);
 
     return 0;
 
