@@ -30,25 +30,27 @@ int main(int argc, char *argv[]){
         printf("Failed to attach to nano shared memory");
     }
 
-    
+     int prev_second = *seconds_ptr_worker;
+     int term_time_s = (*seconds_ptr_worker) + time_limit_s);
+     int term_time_n = (*nano_ptr_worker) + time_limit_n);
 
-    int term_time_s = time_limit_s + *seconds_ptr_worker;
-    int term_time_n = time_limit_n + *nano_ptr_worker;
-    int prev_second = *seconds_ptr_worker;
-
-    printf("WORKER PID: %d PPID: %d SysClockS: %d SysclockNano: %d TermTimeS: %d TermTimeNano: %d\n --Just Starting",
+    printf("WORKER PID: %d PPID: %d SysClockS: %d SysclockNano: %d TermTimeS: %d TermTimeNano: %d\n --Just Starting\n",
      getpid(), getppid(), *seconds_ptr_worker, *nano_ptr_worker, term_time_s, term_time_n);
 
-    while (*seconds_ptr_worker < term_time_s && *nano_ptr_worker < term_time_n){
-        if (prev_second > *seconds_ptr_worker){
-            printf("WORKER PID: %d PPID: %d SysClockS: %d SysclockNano: %d TermTimeS: %d TermTimeNano: %d\n --%d seconds have passed since starting",
-     getpid(), getppid(), *seconds_ptr_worker, *nano_ptr_worker, term_time_s, term_time_n, *seconds_ptr_worker - prev_second);
+    while ((*seconds_ptr_worker < term_time_s) || (*seconds_ptr_worker) == term_time_s && (*nano_ptr_worker) < term_time_n){
+        if (prev_second < *seconds_ptr_worker){
+            printf("WORKER PID: %d PPID: %d SysClockS: %d SysclockNano: %d TermTimeS: %d TermTimeNano: %d\n --%d seconds have passed since starting\n", getpid(), getppid(), *seconds_ptr_worker, *nano_ptr_worker, time_limit_s, time_limit_n, *seconds_ptr_worker - prev_second);
             prev_second = *seconds_ptr_worker;
         }
 
     }
+    printf("WORKER PID: %d PPID: %d SysClockS: %d SysclockNano: %d TermTimeS: %d TermTimeNano: %d\n --Terminating\n", getpid(), getppid(), *seconds_ptr_worker, *nano_ptr_worker, time_limit_s, time_limit_n);
 
-
+    shmdt(seconds_ptr_worker);
+    shmdt(nano_ptr_worker);
 
     return 0;
 }
+
+
+    

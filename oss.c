@@ -8,7 +8,7 @@
 
 
 void help(){
-        printf("Please use this template for running the program: oss [-h] [-n proc] [-s simul] [-t iter]")
+        printf("Please use this template for running the program: oss [-h] [-n proc] [-s simul] [-t iter]");
 }
 
 int main(int argc, char *argv[]) {
@@ -64,11 +64,11 @@ int main(int argc, char *argv[]) {
     int total_workers_launched = 0, active_workers = 0;
 
     while (total_workers_launched < children || active_workers > 0) {
-        (*nano_ptr) += 100000000;
-        if(*nano_ptr == 1000000000){
-            (*seconds_ptr) += 1;
-            *nano_ptr = 0;
-        }
+            (*nano_ptr) += 10000000;
+                if((*nano_ptr) >= 1000000000){
+                        (*seconds_ptr) += 1;
+                        (*nano_ptr) -= 1000000000;
+                }
            if (active_workers < simulations && total_workers_launched < children){
                 int rand_seconds = (rand() % time_limit) + 1;
                 int rand_nano = rand() % 1000000000;
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
                 pid_t fork_pid = fork();
                 if (fork_pid == 0) { //Then we are working with child process
                         execlp("./worker", "worker", second_string, nano_string, NULL);//This is sending our number of iterations to worker.c
-                        perror("execlp has failed");//if execlp fails for some reason perror will give us a descriptive error message 
+                        perror("execlp has failed");//if execlp fails for some reason perror will give us a descriptive error message
                         exit(1);
                 } else if (fork_pid > 0) {//In parent process
                        //We increment active_workers and total_workers_launched to keep track of our processes
@@ -96,8 +96,8 @@ int main(int argc, char *argv[]) {
                    active_workers--;
            }
 
-    
 
+        }
     shmdt(seconds_ptr);
     shmdt(nano_ptr);
     shmctl(shmid_seconds, IPC_RMID, NULL);
@@ -106,3 +106,4 @@ int main(int argc, char *argv[]) {
     return 0;
 
 }
+
