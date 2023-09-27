@@ -9,6 +9,7 @@ int main(int argc, char *argv[]){
     int time_limit_s = atoi(argv[1]);
     int time_limit_n = atoi(argv[2]);
     
+    
     const int seconds_key = 5396211;
     const int nano_key = 2798414;
 
@@ -29,10 +30,24 @@ int main(int argc, char *argv[]){
         printf("Failed to attach to nano shared memory");
     }
 
-    printf("WORKER PID: %d PPID: %d SysClockS: %d SysclockNano: %d TermTimeS: %d TermTimeNano: %d\n --Just Starting",
-     getpid(), getppid(), *seconds_ptr_worker, *nano_ptr_worker, time_limit_s, time_limit_n);
+    
 
-     
+    int term_time_s = time_limit_s + *seconds_ptr_worker;
+    int term_time_n = time_limit_n + *nano_ptr_worker;
+    int prev_second = *seconds_ptr_worker;
+
+    printf("WORKER PID: %d PPID: %d SysClockS: %d SysclockNano: %d TermTimeS: %d TermTimeNano: %d\n --Just Starting",
+     getpid(), getppid(), *seconds_ptr_worker, *nano_ptr_worker, term_time_s, term_time_n);
+
+    while (*seconds_ptr_worker < term_time_s && *nano_ptr_worker < term_time_n){
+        if (prev_second > *seconds_ptr_worker){
+            printf("WORKER PID: %d PPID: %d SysClockS: %d SysclockNano: %d TermTimeS: %d TermTimeNano: %d\n --%d seconds have passed since starting",
+     getpid(), getppid(), *seconds_ptr_worker, *nano_ptr_worker, term_time_s, term_time_n, *seconds_ptr_worker - prev_second);
+            prev_second = *seconds_ptr_worker;
+        }
+
+    }
+
 
 
     return 0;

@@ -57,17 +57,16 @@ int main(int argc, char *argv[]) {
         printf("Failed to attach to nano shared memory");
     }
 
-    pid_t fork_pid = fork();
-    if (fork_pid == 0){
-        (*seconds_ptr) += 1;
-        (*nano_ptr) += 10000000;
-    }
-    else if (fork_pid > 0){
-        wait(0);
-        printf("Seconds: %d and nanoseconds: %d", *seconds_ptr, *nano_ptr);
-    }
-    else{
-        perror("Fork failure");
+    *seconds_ptr = 0;
+    *nano_ptr = 0;
+
+    for (int i = 0; i < 41; i++){
+        (*nano_ptr) += 100000000;
+        if(*nano_ptr == 1000000000){
+            (*seconds_ptr) += 1;
+            *nano_ptr = 0;
+        }
+        printf("Seconds: %d Nanoseconds: %d\n", *seconds_ptr, *nano_ptr);
     }
 
     shmdt(seconds_ptr);
