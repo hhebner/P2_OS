@@ -4,6 +4,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/wait.h>
+#include <time.h>
 
 
 void help(){
@@ -12,7 +13,8 @@ void help(){
 
 int main(int argc, char *argv[]) {
 
-    int children = 0, iterations = 0, time_limit = 0, opt;
+    int children = 0, simulations = 0, time_limit = 0, opt;
+    srand(time(NULL));
 
     while ((opt = getopt(argc, argv, "hn:s:t:")) != -1){
         switch(opt) {
@@ -59,15 +61,42 @@ int main(int argc, char *argv[]) {
 
     *seconds_ptr = 0;
     *nano_ptr = 0;
+    int total_workers_launched = 0, active_workers = 0;
 
-    for (int i = 0; i < 41; i++){
+    while (total_workers_launched < children || active_workers > 0) {
         (*nano_ptr) += 100000000;
         if(*nano_ptr == 1000000000){
             (*seconds_ptr) += 1;
             *nano_ptr = 0;
         }
-        printf("Seconds: %d Nanoseconds: %d\n", *seconds_ptr, *nano_ptr);
-    }
+           if (active_workers < simulations && total_workers_launched < children){
+                int rand_seconds = (rand() % time_limit) + 1;
+                int rand_nano = rand() % 1000000000;
+                char second_string[10];
+                char nano_string[15];
+                sprintf(second_string, "%d", rand_seconds);
+                sprintf(nano_string, "%d", rand_nano);
+
+                pid_t fork_pid = fork();
+                if (fork_pid == 0) { //Then we are working with child process
+                        execlp("./worker", "worker", second_string, nano_string, NULL);//This is sending our number of iterations to worker.c
+                        perror("execlp has failed");//if execlp fails for some reason perror will give us a descriptive error message 
+                        exit(1);
+                } else if (fork_pid > 0) {//In parent process
+                       //We increment active_workers and total_workers_launched to keep track of our processes
+                       total_workers_launched++;
+                       active_workers++;
+                } else {
+                       perror("fork has failed");
+                       exit(1);
+                }
+           }
+           pid_t wait_pid = waitpid(-1, NULL, WNOHANG);
+           if (wait_pid > 0) {
+                   active_workers--;
+           }
+
+    
 
     shmdt(seconds_ptr);
     shmdt(nano_ptr);
