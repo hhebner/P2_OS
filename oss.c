@@ -6,6 +6,45 @@
 #include <sys/wait.h>
 #include <time.h>
 
+struct PCB {
+    int occupied; 
+    pid_t pid; 
+    int start_seconds;
+    int start_nano; 
+};
+struct PCB process_table[20];
+
+void update_PCB(pid_t pid) {
+    for (int i = 0; i < 20; i++) {
+        if (!process_table[i].occupied) {
+            process_table[i].occupied = 1;
+            process_table[i].pid = pid;
+            process_table[i].start_seconds = *seconds_ptr;
+            process_table[i].start_nano = *nano_ptr;
+            break;
+        }
+    }
+}
+
+void updatePCBOnTermination(pid_t pid) {
+    for (int i = 0; i < 20; i++) {
+        if (process_table[i].pid == pid) {
+            process_table[i].occupied = 0;
+            process_table[i].pid = 0;
+            process_table[i].start_seconds = 0;
+            process_table[i].start_nano = 0;
+        }
+    }
+}
+
+void printprocess_table() {
+    printf("OSS PID:%d SysClockS: %d SysclockNano: %d\n", getpid(), *seconds_ptr, *nano_ptr);
+    printf("Process Table:\nEntry Occupied PID StartS StartN\n");
+    for (int i = 0; i < 20; i++) {
+        printf("%d %d %d %d %d\n", i, process_table[i].occupied, process_table[i].pid, process_table[i].start_seconds, process_table[i].start_nano);
+    }
+}
+
 
 void help(){
         printf("Please use this template for running the program: oss [-h] [-n proc] [-s simul] [-t iter]");
