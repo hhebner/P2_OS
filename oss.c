@@ -108,6 +108,10 @@ int main(int argc, char *argv[]) {
                     (*seconds_ptr) += 1;
                     (*nano_ptr) -= 1000000000;
                 }
+
+            if(*nano_ptr % 500000000 == 0){
+                   print_PCB();
+
            if (active_workers < simulations && total_workers_launched < children){
                 int rand_seconds = (rand() % time_limit) + 1;
                 int rand_nano = rand() % 1000000000;
@@ -120,6 +124,7 @@ int main(int argc, char *argv[]) {
                 if (fork_pid == 0) { //Then we are working with child process
                         execlp("./worker", "worker", second_string, nano_string, NULL);//This is sending our number of iterations to worker.c
                         perror("execlp has failed");//if execlp fails for some reason perror will give us a descriptive error message
+                        update_PCB(fork_pid);
                         exit(1);
                 } else if (fork_pid > 0) {//In parent process
                        //We increment active_workers and total_workers_launched to keep track of our processes
@@ -132,6 +137,7 @@ int main(int argc, char *argv[]) {
            }
            pid_t wait_pid = waitpid(-1, NULL, WNOHANG);
            if (wait_pid > 0) {
+                   update_PCB_on_termination(wait_pid);
                    active_workers--;
            }
 
