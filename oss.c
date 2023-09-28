@@ -64,10 +64,10 @@ int main(int argc, char *argv[]) {
     int total_workers_launched = 0, active_workers = 0;
 
     while (total_workers_launched < children || active_workers > 0) {
-            (*nano_ptr) += 10000000;
-                if((*nano_ptr) >= 1000000000){
-                        (*seconds_ptr) += 1;
-                        (*nano_ptr) -= 1000000000;
+            (*nano_ptr) += 200000;
+            if((*nano_ptr) >= 1000000000){
+                    (*seconds_ptr) += 1;
+                    (*nano_ptr) -= 1000000000;
                 }
            if (active_workers < simulations && total_workers_launched < children){
                 int rand_seconds = (rand() % time_limit) + 1;
